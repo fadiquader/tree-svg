@@ -10,6 +10,7 @@
     "d3": "^5.7.0",
     "react": "16.5.0",
     "react-native": "0.57.0",
+    "react-native-game-engine": "^0.10.1",
     "react-native-svg": "^7.0.2"
   },
   "devDependencies": {

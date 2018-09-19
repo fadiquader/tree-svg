@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { View, PanResponder, Platform, Animated } from 'react-native';
 // Based on https://gist.github.com/evgen3188/db996abf89e2105c35091a3807b7311d
+import { GameLoop } from "react-native-game-engine";
 
 function calcDistance(x1, y1, x2, y2) {
     const dx = x1 - x2;
@@ -511,14 +512,18 @@ export default class ZoomableSvg extends React.PureComponent {
         const { svgRoot: Child, childProps, style } = this.props;
         const transform = getZoomTransform(this.state)
         return (
-            <Animated.View
-                {...this._panResponder.panHandlers}
-                onMouseUp={this.onMouseUp}
-                onWheel={this.onWheel}
-                style={style}
-            >
-                <Child ref="container" transform={transform} {...childProps} />
-            </Animated.View>
+            <GameLoop>
+                <Animated.View
+                    {...this._panResponder.panHandlers}
+                    onMouseUp={this.onMouseUp}
+                    onWheel={this.onWheel}
+                    style={style}
+                >
+                    <Child ref="container" transform={transform} {...childProps} />
+                </Animated.View>
+
+            </GameLoop>
+
         );
     }
 }
