@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Platform, StyleSheet, View, Animated, Dimensions} from 'react-native';
+import {Platform, StyleSheet, View, Animated, Dimensions, ScrollView} from 'react-native';
 import Svg, {Circle, G, Path, Rect, Text, TSpan} from 'react-native-svg';
 import * as d3 from "d3"
 
@@ -228,22 +228,27 @@ export default class App extends React.PureComponent {
         links = this.state.links.map(this.fixLinks);
 
         return (
-            <Svg height={wHeight} width={wWidth}>
-                <G transform={this.props.transform}>
+            <ScrollView
+                horizontal={true}
+                // vertical={true}
+                bouncesZoom={true}
+                minimumZoomScale={3}
+            >
+                <Svg height={wHeight + 200} width={wWidth + 200}>
                     {nodes.map((node, key) => {
                         return <G key={key}>
                             <SvgCircleWrap onPress={() => this.test()} cx={node.x} cy={node.y} r={this.state.r}
                                            stroke="blue" strokeWidth="2.5" fill="green"/>
                             <Rect onPress={() => this.test()} x={node.x} y={node.y} width={10} height={10}/>
-                            <TSpan key={Math.random()} x={node.x} y={node.y}>Gender</TSpan>
-                            {zoom && <TSpan key={Math.random()} x={node.x} y={node.y + 20}>Gender</TSpan>}
+                            {/*<TSpan key={Math.random()} x={node.x} y={node.y}>Gender</TSpan>*/}
+                            {/*{zoom && <TSpan key={Math.random()} x={node.x} y={node.y + 20}>Gender</TSpan>}*/}
                         </G>
                     })}
                     {links.map((link, key) => {
                         return <SvgPathWrap key={key} d={link.d} fill="none" stroke="red" opacity={this.state.opacity}/>
                     })}
-                </G>
-            </Svg>
+                </Svg>
+            </ScrollView>
         );
     }
 }
