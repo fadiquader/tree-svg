@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Platform, StyleSheet, View, Animated, Dimensions} from 'react-native';
+import {Platform, StyleSheet, View, Animated, Dimensions, ScrollView, TouchableWithoutFeedback} from 'react-native';
 import Svg, {Circle, G, Path, Rect, Text, TSpan} from 'react-native-svg';
 import * as d3 from "d3"
 
@@ -59,7 +59,23 @@ export default class App extends React.PureComponent {
             links: [],
         };
     }
-
+    static defaultProps = {
+        doAnimateZoomReset: false,
+        maximumZoomScale: 2,
+        minimumZoomScale: 1,
+        zoomHeight: wHeight,
+        zoomWidth: wWidth,
+    }
+    handleResetZoomScale = (event) => {
+        // console.log(event);
+        this.scrollResponderRef.scrollResponderZoomTo({
+            x: 0,
+            y: 0,
+            width: this.props.zoomWidth,
+            height: this.props.zoomHeight,
+            animated: true
+        })
+    }
     componentDidMount() {
         this.test()
     }
@@ -149,6 +165,63 @@ export default class App extends React.PureComponent {
                         {
                             "id": 3,
                             "name": "Cain",
+                            "children": [
+                                {
+                                    "id": 1,
+                                    "name": "Cain",
+                                },
+                                {
+                                    "id": 2,
+                                    "name": "Cain",
+                                },
+                                {
+                                    "id": 3,
+                                    "name": "Cain",
+                                    "children": [
+                                        {
+                                            "id": 1,
+                                            "name": "Cain",
+                                        },
+                                        {
+                                            "id": 2,
+                                            "name": "Cain",
+                                        },
+                                        {
+                                            "id": 3,
+                                            "name": "Cain",
+                                            "children": [
+                                                {
+                                                    "id": 1,
+                                                    "name": "Cain",
+                                                },
+                                                {
+                                                    "id": 2,
+                                                    "name": "Cain",
+                                                },
+                                                {
+                                                    "id": 3,
+                                                    "name": "Cain",
+                                                    "children": [
+                                                        {
+                                                            "id": 1,
+                                                            "name": "Cain",
+                                                        },
+                                                        {
+                                                            "id": 2,
+                                                            "name": "Cain",
+                                                        },
+                                                        {
+                                                            "id": 3,
+                                                            "name": "Cain",
+                                                        },
+                                                    ]
+                                                },
+                                            ]
+                                        },
+                                    ]
+                                },
+
+                            ]
                         },
                     ]
 
@@ -221,29 +294,61 @@ export default class App extends React.PureComponent {
             d
         }
     }
-
+    setZoomRef = node => { //the ScrollView has a scrollResponder which allows us to access more methods to control the ScrollView component
+        if (node) {
+            this.zoomRef = node
+            this.scrollResponderRef = this.zoomRef.getScrollResponder()
+        }
+    };
+    onContentSizeChange = e => {
+        console.log('eee ', e)
+    }
     render() {
         let {nodes, links, zoom} = this.state;
         nodes = nodes.map(this.fixNodes);
         links = this.state.links.map(this.fixLinks);
-
+        console.log('zoomRef', this.zoomRef)
+        console.log(this.scrollResponderRef)
         return (
-            <Svg height={wHeight} width={wWidth}>
-                <G transform={this.props.transform}>
-                    {nodes.map((node, key) => {
-                        return <G key={key}>
-                            <SvgCircleWrap onPress={() => this.test()} cx={node.x} cy={node.y} r={this.state.r}
-                                           stroke="blue" strokeWidth="2.5" fill="green"/>
-                            <Rect onPress={() => this.test()} x={node.x} y={node.y} width={10} height={10}/>
-                            <TSpan key={Math.random()} x={node.x} y={node.y}>Gender</TSpan>
-                            {zoom && <TSpan key={Math.random()} x={node.x} y={node.y + 20}>Gender</TSpan>}
+            <ScrollView
+                showsHorizontalScrollIndicator={false}
+                showsVerticalScrollIndicator={false}
+                horizontal={true}
+                minimumZoomScale={1}
+                maximumZoomScale={5}
+                // zoomScale={}
+                centerContent
+                ref={this.setZoomRef}
+                onContentSizeChange={this.onContentSizeChange}
+            >
+                <TouchableWithoutFeedback
+                    onPress={this.handleResetZoomScale}
+                >
+                    <Svg height={wHeight + 300} width={wWidth + 300}>
+                        <G
+                            // transform={this.props.transform}
+                        >
+                            {nodes.map((node, key) => {
+                                return <G key={key}>
+                                    <SvgCircleWrap onPress={() => this.test()} cx={node.x} cy={node.y} r={this.state.r}
+                                                   stroke="blue" strokeWidth="2.5" fill="green"/>
+                                    <Rect onPress={() => this.test()} x={node.x} y={node.y} width={10} height={10}/>
+
+                                    <Rect x={node.x + 5} y={node.y + 10} width={10} height={10}/>
+                                    <Rect x={node.x + 5} y={node.y+ 20} width={10} height={10}/>
+
+                                    {/*<TSpan key={Math.random()} x={node.x} y={node.y}>Gender</TSpan>*/}
+                                    {/*{zoom && <TSpan key={Math.random()} x={node.x} y={node.y + 20}>Gender</TSpan>}*/}
+                                </G>
+                            })}
+                            {links.map((link, key) => {
+                                return <SvgPathWrap key={key} d={link.d} fill="none" stroke="red" opacity={this.state.opacity}/>
+                            })}
                         </G>
-                    })}
-                    {links.map((link, key) => {
-                        return <SvgPathWrap key={key} d={link.d} fill="none" stroke="red" opacity={this.state.opacity}/>
-                    })}
-                </G>
-            </Svg>
+                    </Svg>
+                </TouchableWithoutFeedback>
+
+            </ScrollView>
         );
     }
 }
